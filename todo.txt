@@ -11,3 +11,7 @@ api/v1/user/me/change-password
 
 api/v1/user/kakao
 api/v1/user/google
+
+user
+booking
+category : rider or driver

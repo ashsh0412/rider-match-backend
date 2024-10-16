@@ -5,6 +5,7 @@ from .models import User
 
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
+
     fieldsets = (
         (
             "Profile",
@@ -38,4 +39,3 @@ class CustomUserAdmin(UserAdmin):
             },
         ),
     )
-    list_display = ("username", "first_name", "last_name", "is_rider")

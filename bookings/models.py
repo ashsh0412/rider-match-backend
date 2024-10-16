@@ -24,3 +24,6 @@ class Booking(models.Model):
         auto_now_add=True,
         null=True,
     )
+
+    def __str__(self):
+        return f"{self.type} / {self.user}"

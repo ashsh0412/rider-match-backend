@@ -14,7 +14,7 @@ class Booking(models.Model):
         null=True,
         blank=True,
     )
-    guests = models.PositiveSmallIntegerField()
+    guests = models.PositiveSmallIntegerField(default=1)
     type = models.CharField(
         max_length=6,
         choices=BookingTypeChoices,
@@ -24,6 +24,8 @@ class Booking(models.Model):
         auto_now_add=True,
         null=True,
     )
+    pickup_location = models.CharField(max_length=100, null=True)
+    dropoff_location = models.CharField(max_length=100, null=True)
 
     def __str__(self):
         return f"{self.type} / {self.user}"

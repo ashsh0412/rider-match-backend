@@ -56,7 +56,7 @@ class Users(APIView):  # create user
             return Response(serializer.errors)
 
 
-class PublicUser(APIView):
+class PublicUser(APIView): # search another user
     def get(self, request, username):
         try:
             user = User.objects.get(username=username)

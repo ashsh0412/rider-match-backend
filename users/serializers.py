@@ -9,6 +9,7 @@ class TinyUserSerializer(ModelSerializer):
             "first_name",
             "last_name",
             "username",
+            "email",
         )
 
 

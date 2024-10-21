@@ -10,7 +10,7 @@ from rest_framework.exceptions import ParseError, NotFound
 from users.models import User
 
 
-class Me(APIView):  # taking logged in user info or edit it
+class Me(APIView):  # receiving logged in user info or edit it
 
     permission_classes = [IsAuthenticated]
 
@@ -45,18 +45,20 @@ class Users(APIView):  # create user
         password = request.data.get("password")
         if not password:
             raise ParseError("Password is required")
+
         serializer = PrivateUserSerializer(data=request.data)
+
         if serializer.is_valid():
             user = serializer.save()
             user.set_password(password)
             user.save()
             serializer = PrivateUserSerializer(user)
-            return Response(serializer.data)
+            return Response(serializer.data, status=201)  # Created
         else:
-            return Response(serializer.errors)
+            return Response(serializer.errors, status=400)  # Bad Request
 
 
-class PublicUser(APIView): # search another user
+class PublicUser(APIView):  # search another user
     def get(self, request, username):
         try:
             user = User.objects.get(username=username)
@@ -89,18 +91,21 @@ class LogIn(APIView):
     def post(self, request):
         username = request.data.get("username")
         password = request.data.get("password")
+
         if not username or not password:
-            raise ParseError
+            raise ParseError("Username and password are required.")
+
         user = authenticate(
             request,
             username=username,
             password=password,
         )
+
         if user:
             login(request, user)
-            return Response({"ok": "Welcome"})
+            return Response({"ok": "Welcome"}, status=200)
         else:
-            return Response({"error": "wrong password"})
+            return Response({"error": "Invalid username or password"}, status=401)
 
 
 class LogOut(APIView):
@@ -112,6 +117,7 @@ class LogOut(APIView):
         return Response({"ok": "Log Out"})
 
 
+# 만약에  대비해서
 class JWTLogIn(APIView):
 
     def post(self, request):

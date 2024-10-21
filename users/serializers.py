@@ -23,6 +23,5 @@ class PrivateUserSerializer(ModelSerializer):
             "id",
             "is_staff",
             "is_active",
-            "first_name",
             "user_permissions",
         )

@@ -6,10 +6,10 @@ class BookingSerializer(ModelSerializer):
     class Meta:
         model = Booking
         fields = (
-            "user",
+            "rider",
+            "passenger",
             "pickup_time",
             "guests",
-            "type",
             "created_at",
             "pickup_location",
             "dropoff_location",

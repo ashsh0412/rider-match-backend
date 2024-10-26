@@ -6,14 +6,13 @@ from .serializers import BookingSerializer
 from rest_framework.exceptions import NotFound
 from bookings.models import Booking
 
+
 class MyBooking(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         # 현재 사용자의 예약 정보를 가져오기 (rider 또는 passenger)
-        bookings = Booking.objects.filter(
-            rider=request.user
-        ) | Booking.objects.filter(
+        bookings = Booking.objects.filter(rider=request.user) | Booking.objects.filter(
             passenger=request.user
         )  # rider와 passenger 모두에서 예약을 찾음
 
@@ -26,9 +25,7 @@ class MyBooking(APIView):
 
     def delete(self, request):
         # 현재 사용자의 예약 정보를 가져와 삭제 (rider 또는 passenger)
-        bookings = Booking.objects.filter(
-            rider=request.user
-        ) | Booking.objects.filter(
+        bookings = Booking.objects.filter(rider=request.user) | Booking.objects.filter(
             passenger=request.user
         )  # rider와 passenger 모두에서 예약을 찾음
 

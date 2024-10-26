@@ -1,6 +1,7 @@
 from django.contrib import admin
 from .models import Booking
 
+
 @admin.register(Booking)
 class BookingAdmin(admin.ModelAdmin):
     list_display = (
@@ -12,5 +13,8 @@ class BookingAdmin(admin.ModelAdmin):
     )
 
     def get_passenger(self, obj):
-        return ", ".join([str(p) for p in obj.passenger.all()])  # ManyToManyField로 처리
-    get_passenger.short_description = 'Passengers'
+        return ", ".join(
+            [str(p) for p in obj.passenger.all()]
+        )  # ManyToManyField로 처리
+
+    get_passenger.short_description = "Passengers"

@@ -10,4 +10,5 @@ class LocationAdmin(admin.ModelAdmin):
         "end_latitude",
         "end_longitude",
         "user",
+        "address",
     )

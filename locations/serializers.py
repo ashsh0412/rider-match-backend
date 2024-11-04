@@ -11,4 +11,5 @@ class LocationSerializer(ModelSerializer):
             "end_latitude",
             "end_longitude",
             "user",
+            "address",
         )

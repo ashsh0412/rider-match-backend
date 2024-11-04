@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from .models import Location
 from .serializers import LocationSerializer
 
+
 class LocationView(APIView):
     permission_classes = [IsAuthenticated]
 

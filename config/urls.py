@@ -6,6 +6,6 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/v1/users/", include("users.urls")),
     path("api/v1/bookings", include("bookings.urls")),
-    path("api/vi/locations", include("locations.urls")),
+    path("api/v1/locations", include("locations.urls")),
     path("maps/config/", views.get_maps_config, name="maps-config"),
 ]

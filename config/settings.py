@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "users.apps.UsersConfig",
     "bookings.apps.BookingsConfig",
     "apis.apps.ApisConfig",
+    "locations.apps.LocationsConfig",
     "rest_framework",
     "rest_framework.authtoken",
     "corsheaders",

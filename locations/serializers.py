@@ -8,6 +8,7 @@ class LocationSerializer(ModelSerializer):
         model = Location
         fields = [
             "id",
+            "user",
             "start_latitude",
             "start_longitude",
             "end_latitude",

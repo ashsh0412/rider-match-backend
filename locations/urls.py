@@ -1,13 +1,8 @@
 from django.urls import path
-from .views import LocationView, PublicLocationView
+from .views import UserLocationView, PublicLocationView, LocationDetailView
 
 urlpatterns = [
-    path(
-        "",
-        LocationView.as_view(),
-    ),
-    path(
-        "get",
-        PublicLocationView.as_view(),
-    ),
+    path("", UserLocationView.as_view(), name="location-list"),
+    path("get/", PublicLocationView.as_view(), name="public-location-list"),
+    path("get/<int:pk>/", LocationDetailView.as_view(), name="location-detail"),
 ]

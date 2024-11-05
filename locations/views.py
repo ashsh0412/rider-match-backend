@@ -13,8 +13,7 @@ class PublicLocationView(APIView):
         serializer = LocationSerializer(locations, many=True)
         return Response(serializer.data)
 
-
-class LocationView(APIView):
+class LocationDetailView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get_object(self, pk):
@@ -23,27 +22,45 @@ class LocationView(APIView):
         except Location.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-    def post(self, request):
-        serializer = LocationSerializer(data=request.data)
-        if serializer.is_valid():
-            # 현재 로그인한 유저의 이름 정보 추가
-            validated_data = serializer.validated_data
-            validated_data['first_name'] = request.user.first_name
-            validated_data['last_name'] = request.user.last_name
-            
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+    def delete(self, request, pk):
+        location = self.get_object(pk)
+        if isinstance(location, Response):  # get_object가 Response일 경우
+            return location
+        location.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
     def put(self, request, pk):
         location = self.get_object(pk)
+        if isinstance(location, Response):  # get_object가 Response일 경우
+            return location
         serializer = LocationSerializer(location, data=request.data, partial=True)
         if serializer.is_valid():
             location = serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, pk):
-        location = self.get_object(pk)
-        location.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+
+class UserLocationView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        # 로그인한 사용자의 모든 위치 조회
+        locations = self.get_queryset()
+        serializer = LocationSerializer(locations, many=True)
+        return Response(serializer.data)
+
+    def get_queryset(self):
+        # 로그인한 사용자의 위치 필터링
+        return Location.objects.filter(user=self.request.user)
+
+    def post(self, request):
+        # 새로운 위치 생성
+        data = request.data.copy()  # request.data를 복사하여 수정 가능하게 만듭니다.
+        data["first_name"] = request.user.first_name
+        data["last_name"] = request.user.last_name
+
+        serializer = LocationSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save(user=request.user)  # 로그인한 사용자 정보 저장
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

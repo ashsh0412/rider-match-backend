@@ -11,9 +11,13 @@ class Location(models.Model):
         null=True,
         blank=True,
     )
-    user = models.ForeignKey(
-        "users.User",
-        on_delete=models.CASCADE,
+    first_name = models.CharField(
+        max_length=150,
+        null=True,
+        blank=True,
+    )
+    last_name = models.CharField(
+        max_length=150,
         null=True,
         blank=True,
     )

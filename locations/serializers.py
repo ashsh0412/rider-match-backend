@@ -2,14 +2,17 @@ from rest_framework.serializers import ModelSerializer
 from .models import Location
 
 
+# serializers.py
 class LocationSerializer(ModelSerializer):
     class Meta:
         model = Location
-        fields = (
+        fields = [
+            "id",
             "start_latitude",
             "start_longitude",
             "end_latitude",
             "end_longitude",
-            "user",
             "address",
-        )
+            "first_name",
+            "last_name",
+        ]

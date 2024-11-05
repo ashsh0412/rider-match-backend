@@ -13,7 +13,12 @@ class Location(models.Model):
     start_longitude = models.FloatField()
     end_latitude = models.FloatField()
     end_longitude = models.FloatField()
-    address = models.CharField(
+    pickup_location = models.CharField(
+        max_length=150,
+        null=True,
+        blank=True,
+    )
+    dropoff_location = models.CharField(
         max_length=150,
         null=True,
         blank=True,
@@ -25,6 +30,10 @@ class Location(models.Model):
     )
     last_name = models.CharField(
         max_length=150,
+        null=True,
+        blank=True,
+    )
+    date_time = models.DateTimeField(
         null=True,
         blank=True,
     )

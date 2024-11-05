@@ -13,7 +13,9 @@ class LocationSerializer(ModelSerializer):
             "start_longitude",
             "end_latitude",
             "end_longitude",
-            "address",
+            "pickup_location",
+            "dropoff_location",
             "first_name",
             "last_name",
+            "date_time",
         ]

@@ -13,6 +13,7 @@ class PublicLocationView(APIView):
         serializer = LocationSerializer(locations, many=True)
         return Response(serializer.data)
 
+
 class LocationDetailView(APIView):
     permission_classes = [IsAuthenticated]
 

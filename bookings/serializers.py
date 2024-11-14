@@ -1,16 +1,17 @@
-from rest_framework.serializers import ModelSerializer
+from rest_framework import serializers
 from .models import Booking
 
-
-class BookingSerializer(ModelSerializer):
+class BookingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Booking
         fields = (
+            "id",
             "rider",
-            "passenger",
-            "pickup_time",
+            "driver_name",
+            "passengers",
+            "pickup_times",
+            "locations",
             "guests",
             "created_at",
-            "pickup_location",
-            "dropoff_location",
         )
+        read_only_fields = ("id", "rider", "created_at")

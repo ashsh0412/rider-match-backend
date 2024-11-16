@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from .serializers import BookingSerializer
-from rest_framework.exceptions import NotFound
+from rest_framework.exceptions import NotFound, PermissionDenied
 from bookings.models import Booking
 from django.db.models import Q
 import json
@@ -17,15 +17,10 @@ class MyBooking(APIView):
         bookings = Booking.objects.filter(rider=request.user)
 
         # Get bookings where user is in passengers
-        # Using JSONField lookups that work across different database backends
         user_id_str = str(request.user.id)
         passenger_bookings = Booking.objects.filter(
-            Q(
-                passengers__icontains=user_id_str
-            )  # This will do a text search within the JSON
-        ).exclude(
-            passengers__isnull=True
-        )  # Exclude null values
+            Q(passengers__icontains=user_id_str)
+        ).exclude(passengers__isnull=True)
 
         # Combine the querysets
         all_bookings = (bookings | passenger_bookings).distinct()
@@ -45,7 +40,6 @@ class MyBooking(APIView):
             # Handle passengers data
             passengers = request.data.get("passengers")
             if passengers:
-                # Ensure passengers is properly formatted as JSON
                 if isinstance(passengers, str):
                     try:
                         passengers = json.loads(passengers)
@@ -59,7 +53,6 @@ class MyBooking(APIView):
             # Handle pickup_times data
             pickup_times = request.data.get("pickup_times")
             if pickup_times:
-                # Ensure pickup_times is properly formatted as JSON
                 if isinstance(pickup_times, str):
                     try:
                         pickup_times = json.loads(pickup_times)
@@ -73,7 +66,6 @@ class MyBooking(APIView):
             # Handle locations data
             locations = request.data.get("locations")
             if locations:
-                # Ensure locations is properly formatted as JSON
                 if isinstance(locations, str):
                     try:
                         locations = json.loads(locations)
@@ -89,17 +81,76 @@ class MyBooking(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request):
-        # Get bookings where user is the rider
-        bookings = Booking.objects.filter(rider=request.user)
+    def put(self, request, booking_id):
+        """
+        Update an existing booking.
+        """
+        try:
+            booking = Booking.objects.get(id=booking_id)
+        except Booking.DoesNotExist:
+            raise NotFound("Booking not found")
 
-        # Get bookings where user is in passengers
+        # Check if the user is the rider or a passenger
+        if booking.rider != request.user and str(request.user.id) not in booking.passengers:
+            raise PermissionDenied("You do not have permission to update this booking")
+
+        # Update the booking data
+        serializer = BookingSerializer(booking, data=request.data, partial=True)
+
+        if serializer.is_valid():
+            booking = serializer.save()
+
+            # Handle passengers data
+            passengers = request.data.get("passengers")
+            if passengers:
+                if isinstance(passengers, str):
+                    try:
+                        passengers = json.loads(passengers)
+                    except json.JSONDecodeError:
+                        return Response(
+                            {"error": "Invalid passengers data format"},
+                            status=status.HTTP_400_BAD_REQUEST,
+                        )
+                booking.passengers = passengers
+
+            # Handle pickup_times data
+            pickup_times = request.data.get("pickup_times")
+            if pickup_times:
+                if isinstance(pickup_times, str):
+                    try:
+                        pickup_times = json.loads(pickup_times)
+                    except json.JSONDecodeError:
+                        return Response(
+                            {"error": "Invalid pickup_times data format"},
+                            status=status.HTTP_400_BAD_REQUEST,
+                        )
+                booking.pickup_times = pickup_times
+
+            # Handle locations data
+            locations = request.data.get("locations")
+            if locations:
+                if isinstance(locations, str):
+                    try:
+                        locations = json.loads(locations)
+                    except json.JSONDecodeError:
+                        return Response(
+                            {"error": "Invalid locations data format"},
+                            status=status.HTTP_400_BAD_REQUEST,
+                        )
+                booking.locations = locations
+
+            booking.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request):
+        bookings = Booking.objects.filter(rider=request.user)
         user_id_str = str(request.user.id)
         passenger_bookings = Booking.objects.filter(
             Q(passengers__icontains=user_id_str)
         ).exclude(passengers__isnull=True)
 
-        # Combine the querysets
         all_bookings = (bookings | passenger_bookings).distinct()
 
         if not all_bookings.exists():

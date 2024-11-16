@@ -10,19 +10,28 @@ import json
 
 
 class MyBooking(APIView):
+    """
+    예약 관리를 위한 API 뷰
+    인증된 사용자만 접근 가능
+    """
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        # Get bookings where user is the rider
+        """
+        현재 사용자의 모든 예약을 조회
+        - 사용자가 운전자인 예약
+        - 사용자가 탑승자로 포함된 예약
+        """
+        # 사용자가 운전자인 예약 조회
         bookings = Booking.objects.filter(rider=request.user)
 
-        # Get bookings where user is in passengers
+        # 사용자가 탑승자로 포함된 예약 조회
         user_id_str = str(request.user.id)
         passenger_bookings = Booking.objects.filter(
             Q(passengers__icontains=user_id_str)
         ).exclude(passengers__isnull=True)
 
-        # Combine the querysets
+        # 두 쿼리셋 병합 및 중복 제거
         all_bookings = (bookings | passenger_bookings).distinct()
 
         if not all_bookings.exists():
@@ -32,16 +41,24 @@ class MyBooking(APIView):
         return Response(serializer.data)
 
     def post(self, request):
+        """
+        새로운 예약 생성
+        - passengers: 탑승자 목록 (JSON 형식)
+        - pickup_times: 픽업 시간 목록 (JSON 형식)
+        - locations: 위치 정보 목록 (JSON 형식)
+        """
         serializer = BookingSerializer(data=request.data)
 
         if serializer.is_valid():
+            # 현재 사용자를 운전자로 설정하여 예약 생성
             booking = serializer.save(rider=request.user)
 
-            # Handle passengers data
+            # 탑승자 데이터 처리
             passengers = request.data.get("passengers")
             if passengers:
                 if isinstance(passengers, str):
                     try:
+                        # 문자열로 전달된 JSON 데이터 파싱
                         passengers = json.loads(passengers)
                     except json.JSONDecodeError:
                         return Response(
@@ -50,7 +67,7 @@ class MyBooking(APIView):
                         )
                 booking.passengers = passengers
 
-            # Handle pickup_times data
+            # 픽업 시간 데이터 처리
             pickup_times = request.data.get("pickup_times")
             if pickup_times:
                 if isinstance(pickup_times, str):
@@ -63,7 +80,7 @@ class MyBooking(APIView):
                         )
                 booking.pickup_times = pickup_times
 
-            # Handle locations data
+            # 위치 데이터 처리
             locations = request.data.get("locations")
             if locations:
                 if isinstance(locations, str):
@@ -83,24 +100,26 @@ class MyBooking(APIView):
 
     def put(self, request, booking_id):
         """
-        Update an existing booking.
+        기존 예약 수정
+        - 운전자나 탑승자만 수정 가능
+        - 부분 업데이트 지원 (일부 필드만 수정 가능)
         """
         try:
             booking = Booking.objects.get(id=booking_id)
         except Booking.DoesNotExist:
             raise NotFound("Booking not found")
 
-        # Check if the user is the rider or a passenger
+        # 권한 확인: 운전자이거나 탑승자여야 함
         if booking.rider != request.user and str(request.user.id) not in booking.passengers:
             raise PermissionDenied("You do not have permission to update this booking")
 
-        # Update the booking data
+        # 예약 데이터 업데이트
         serializer = BookingSerializer(booking, data=request.data, partial=True)
 
         if serializer.is_valid():
             booking = serializer.save()
 
-            # Handle passengers data
+            # 탑승자 데이터 업데이트
             passengers = request.data.get("passengers")
             if passengers:
                 if isinstance(passengers, str):
@@ -113,7 +132,7 @@ class MyBooking(APIView):
                         )
                 booking.passengers = passengers
 
-            # Handle pickup_times data
+            # 픽업 시간 데이터 업데이트
             pickup_times = request.data.get("pickup_times")
             if pickup_times:
                 if isinstance(pickup_times, str):
@@ -126,7 +145,7 @@ class MyBooking(APIView):
                         )
                 booking.pickup_times = pickup_times
 
-            # Handle locations data
+            # 위치 데이터 업데이트
             locations = request.data.get("locations")
             if locations:
                 if isinstance(locations, str):
@@ -145,6 +164,11 @@ class MyBooking(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request):
+        """
+        현재 사용자와 관련된 모든 예약 삭제
+        - 운전자로 등록된 예약
+        - 탑승자로 등록된 예약
+        """
         bookings = Booking.objects.filter(rider=request.user)
         user_id_str = str(request.user.id)
         passenger_bookings = Booking.objects.filter(

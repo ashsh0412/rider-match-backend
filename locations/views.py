@@ -16,13 +16,13 @@ class PublicLocationView(APIView):
 
 class LocationDetailView(APIView):
     permission_classes = [IsAuthenticated]
-    
+
     def get_object(self, pk):
         try:
             return Location.objects.get(pk=pk, user=self.request.user)
         except Location.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
-    
+
     # GET 요청 추가
     def get(self, request, pk):
         location = self.get_object(pk)
@@ -37,7 +37,7 @@ class LocationDetailView(APIView):
             return location
         location.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-    
+
     def put(self, request, pk):
         location = self.get_object(pk)
         if isinstance(location, Response):  # get_object가 Response일 경우
@@ -47,6 +47,7 @@ class LocationDetailView(APIView):
             location = serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class UserLocationView(APIView):
     permission_classes = [IsAuthenticated]

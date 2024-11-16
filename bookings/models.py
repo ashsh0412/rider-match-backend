@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
 
+
 class Booking(models.Model):
     rider = models.ForeignKey(
         "users.User",

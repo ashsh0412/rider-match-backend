@@ -14,6 +14,7 @@ class MyBooking(APIView):
     예약 관리를 위한 API 뷰
     인증된 사용자만 접근 가능
     """
+
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -110,7 +111,10 @@ class MyBooking(APIView):
             raise NotFound("Booking not found")
 
         # 권한 확인: 운전자이거나 탑승자여야 함
-        if booking.rider != request.user and str(request.user.id) not in booking.passengers:
+        if (
+            booking.rider != request.user
+            and str(request.user.id) not in booking.passengers
+        ):
             raise PermissionDenied("You do not have permission to update this booking")
 
         # 예약 데이터 업데이트
@@ -182,11 +186,13 @@ class MyBooking(APIView):
 
         all_bookings.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-    
+
+
 class UpdateBooking(APIView):
     """
     특정 예약 수정 API
     """
+
     permission_classes = [IsAuthenticated]
 
     def put(self, request, booking_id):
@@ -200,7 +206,10 @@ class UpdateBooking(APIView):
             raise NotFound("Booking not found")
 
         # 권한 확인: 운전자이거나 탑승자여야 함
-        if booking.rider != request.user and str(request.user.id) not in booking.passengers:
+        if (
+            booking.rider != request.user
+            and str(request.user.id) not in booking.passengers
+        ):
             raise PermissionDenied("You do not have permission to update this booking")
 
         # 예약 데이터 업데이트

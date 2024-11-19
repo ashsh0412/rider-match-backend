@@ -18,6 +18,6 @@ class Booking(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     arrival_time = models.DateTimeField(default=timezone.now)
     starting_point = models.CharField(max_length=200, null=True, blank=True)
-    
+
     def __str__(self):
         return f"{self.rider} / {self.passengers}"

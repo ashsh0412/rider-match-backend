@@ -6,6 +6,7 @@ from .models import Location
 from .serializers import LocationSerializer
 from django.http import Http404
 
+
 class PublicLocationView(APIView):
     def get(self, request):
         # user 필터 제거하여 모든 위치 정보 가져오기
@@ -37,6 +38,7 @@ class LocationDetailView(APIView):
         location = self.get_object(pk)
         location.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class UserLocationView(APIView):
     permission_classes = [IsAuthenticated]

@@ -8,6 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from .serializers import PrivateUserSerializer, TinyUserSerializer
 from rest_framework.exceptions import ParseError, NotFound
 from users.models import User
+import requests
 
 
 class Me(APIView):  # receiving logged in user info or edit it
@@ -139,3 +140,46 @@ class JWTLogIn(APIView):
             return Response({"token": token})
         else:
             return Response({"error": "wrong password"})
+
+
+class KakaoLogin(APIView):
+    def post(self, request):
+        try:
+            code = request.data.get("code")
+            token_response = requests.post(
+                "https://kauth.kakao.com/oauth/token",
+                headers={"Content-Type": "application/x-www-form-urlencoded"},
+                data={
+                    "grant_type": "authorization_code",
+                    "client_id": settings.KAKAO_CLIENT_ID,
+                    "redirect_uri": "http://127.0.0.1:3000/oauth/kakao",
+                    "code": code,
+                },
+            )
+
+            token_json = token_response.json()
+            access_token = token_json.get("access_token")
+            user_data = requests.get("https://kapi.kakao.com/v2/user/me", 
+            headers={
+                "Authorization" : f"Bearer {access_token}",
+                "Content-Type" : "application/x-www-form-urlencoded;charset=utf-8",
+            })
+            user_data = user_data.json()
+            kakao_account = user_data.get("kakao_account")
+            profile = kakao_account.get("profile")
+            try:
+                user = User.objects.get(email=kakao_account.get("email"), username=profile.get("nickname"))
+                login(request, user)
+                return Response(status=status.HTTP_200_OK)
+            except User.DoesNotExist:
+                user = User.objects.create(
+                    email=kakao_account.get("email"),
+                    username=profile.get("nickname"),
+                    first_name=kakao_account.get("name"),
+                )
+                user.set_unusable_password()
+                user.save()
+                login(request, user)
+                return Response(status=status.HTTP_200_OK)
+        except Exception:
+            return Response(status=status.HTTP_400_BAD_REQUEST)

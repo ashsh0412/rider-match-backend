@@ -37,7 +37,13 @@ GOOGLE_CLIENT_SECRET = env("GOOGLE_CLIENT_SECRET")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = "RENDER" not in os.environ
 
-ALLOWED_HOSTS = ["backend.drivermatch.store"]
+if DEBUG:
+    ALLOWED_HOSTS = [
+        "127.0.0.1",
+        "localhost",
+    ]
+else:
+    ALLOWED_HOSTS = ["backend.drivermatch.store"]
 
 RENDER_EXTERNAL_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
 
@@ -174,10 +180,12 @@ if DEBUG:
     CORS_ALLOWED_ORIGINS = [
         "http://127.0.0.1:3000",
         "http://127.0.0.1:5500",
+        "http://127.0.0.1:3001",
     ]
     CSRF_TRUSTED_ORIGINS = [
         "http://127.0.0.1:3000",
         "http://127.0.0.1:5500",
+        "http://127.0.0.1:3001",
     ]
 else:
     CORS_ALLOWED_ORIGINS = [

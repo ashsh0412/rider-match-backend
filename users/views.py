@@ -155,7 +155,7 @@ class GoogleLogin(APIView):
                     "grant_type": "authorization_code",
                     "client_id": settings.GOOGLE_CLIENT_ID,
                     "client_secret": settings.GOOGLE_CLIENT_SECRET,
-                    "redirect_uri": "http://127.0.0.1:3000/oauth/google",  # 구글 OAuth2 리디렉션 URI
+                    "redirect_uri": settings.GOOGLE_REDIRECT_URL,
                     "code": code,
                 },
             )
@@ -203,7 +203,7 @@ class KakaoLogin(APIView):
                 data={
                     "grant_type": "authorization_code",
                     "client_id": settings.KAKAO_CLIENT_ID,
-                    "redirect_uri": "http://127.0.0.1:3000/oauth/kakao",
+                    "redirect_uri": settings.KAKAO_REDIRECT_URI,
                     "code": code,
                 },
             )

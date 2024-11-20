@@ -196,3 +196,10 @@ if not DEBUG:
             "continuous_profiling_auto_start": True,
         },
     )
+
+if DEBUG:
+    KAKAO_REDIRECT_URI = "http://127.0.0.1:3000/oauth/kakao"
+    GOOGLE_REDIRECT_URL = "http://127.0.0.1:3000/oauth/google"
+else:
+    KAKAO_REDIRECT_URI = "https://rider-match-front.onrender.com/oauth/kakao"
+    GOOGLE_REDIRECT_URI = "https://rider-match-front.onrender.com/oauth/google"

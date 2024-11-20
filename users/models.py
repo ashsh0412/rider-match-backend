@@ -11,3 +11,9 @@ class User(AbstractUser):
             "unique": ("A user with that username already exists."),
         },
     )
+    email = models.EmailField(
+        unique=True,  # 유니크한 이메일
+        error_messages={
+            "unique": ("A user with that email address already exists."),
+        },
+    )

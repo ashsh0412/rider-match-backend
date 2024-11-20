@@ -8,6 +8,7 @@ from .views import (
     JWTLogIn,
     PublicUser,
     KakaoLogin,
+    GoogleLogin,
 )
 from rest_framework.authtoken.views import obtain_auth_token
 
@@ -20,5 +21,6 @@ urlpatterns = [
     path("token_login", obtain_auth_token),
     path("jwt_login", JWTLogIn.as_view()),
     path("kakao", KakaoLogin.as_view()),
+    path("google", GoogleLogin.as_view()),
     path("@<str:username>", PublicUser.as_view()),
 ]

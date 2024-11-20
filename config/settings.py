@@ -35,11 +35,11 @@ GOOGLE_CLIENT_ID = env("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = env("GOOGLE_CLIENT_SECRET")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = 'RENDER' not in os.environ
+DEBUG = "RENDER" not in os.environ
 
 ALLOWED_HOSTS = []
 
-RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+RENDER_EXTERNAL_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
 
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
@@ -72,7 +72,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -108,7 +108,7 @@ if DEBUG:
     }
 else:
     DATABASES = {
-        'default' : dj_database_url.config(
+        "default": dj_database_url.config(
             conn_max_age=600,
         )
     }
@@ -150,7 +150,7 @@ USE_TZ = True
 STATIC_URL = "/static/"
 
 if not DEBUG:
-    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+    STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
     STATICFILES_STORAGE = "whitenoise.storage.CompressedMaifestStaticFilesStorage"
 
 # Default primary key field type
@@ -169,22 +169,30 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 10,
 }
 
-CORS_ALLOWED_ORIGINS = [
-    "http://127.0.0.1:3000",
-    "http://127.0.0.1:5500",
-]
-CORS_ALLOW_CREDENTIALS = True
-CSRF_TRUSTED_ORIGINS = [
-    "http://127.0.0.1:3000",
-    "http://127.0.0.1:5500",
-]
+if DEBUG:
 
+    CORS_ALLOWED_ORIGINS = [
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:5500",
+    ]
+    CSRF_TRUSTED_ORIGINS = [
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:5500",
+    ]
+else:
+    CORS_ALLOWED_ORIGINS = [
+        "https://rider-match-front.onrender.com",
+    ]
+    CSRF_TRUSTED_ORIGINS = [
+        "https://rider-match-front.onrender.com",
+    ]
+
+CORS_ALLOW_CREDENTIALS = True
 if not DEBUG:
     sentry_sdk.init(
-    dsn="https://34f9bc58d8ceb0e8dbcc2294e8b2f1f5@o4505803789172736.ingest.us.sentry.io/4508328405565440",
-
-    traces_sample_rate=1.0,
-    _experiments={
-        "continuous_profiling_auto_start": True,
-    },
-)
+        dsn="https://34f9bc58d8ceb0e8dbcc2294e8b2f1f5@o4505803789172736.ingest.us.sentry.io/4508328405565440",
+        traces_sample_rate=1.0,
+        _experiments={
+            "continuous_profiling_auto_start": True,
+        },
+    )

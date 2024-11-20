@@ -173,7 +173,7 @@ class GoogleLogin(APIView):
 
             # 이메일과 이름을 사용하여 유저 검색 (로그인)
             try:
-                user = User.objects.get(username=user_data.get("name")) 
+                user = User.objects.get(username=user_data.get("name"))
                 login(request, user)
                 return Response(status=status.HTTP_200_OK)
             except User.DoesNotExist:

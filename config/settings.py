@@ -189,6 +189,8 @@ else:
 
 CORS_ALLOW_CREDENTIALS = True
 if not DEBUG:
+    SESSION_COOKIE_DOMAIN = ".drivermatch.store"
+    CSRF_COOKIE_DOMAIN = ".drivermatch.store"
     sentry_sdk.init(
         dsn="https://34f9bc58d8ceb0e8dbcc2294e8b2f1f5@o4505803789172736.ingest.us.sentry.io/4508328405565440",
         traces_sample_rate=1.0,

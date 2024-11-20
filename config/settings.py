@@ -37,7 +37,7 @@ GOOGLE_CLIENT_SECRET = env("GOOGLE_CLIENT_SECRET")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = "RENDER" not in os.environ
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["backend.drivermatch.store"]
 
 RENDER_EXTERNAL_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
 
@@ -181,10 +181,10 @@ if DEBUG:
     ]
 else:
     CORS_ALLOWED_ORIGINS = [
-        "https://rider-match-front.onrender.com",
+        "https://drivermatch.store",
     ]
     CSRF_TRUSTED_ORIGINS = [
-        "https://rider-match-front.onrender.com",
+        "https://drivermatch.store",
     ]
 
 CORS_ALLOW_CREDENTIALS = True

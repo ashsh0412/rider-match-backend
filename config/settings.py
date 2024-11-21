@@ -207,7 +207,7 @@ if not DEBUG:
 
 if DEBUG:
     KAKAO_REDIRECT_URI = "http://127.0.0.1:3000/oauth/kakao"
-    GOOGLE_REDIRECT_URL = "http://127.0.0.1:3000/oauth/google"
+    GOOGLE_REDIRECT_URI = "http://127.0.0.1:3000/oauth/google"
 else:
     KAKAO_REDIRECT_URI = "https://drivermatch.store/oauth/kakao"
     GOOGLE_REDIRECT_URI = "https://drivermatch.store/oauth/google"

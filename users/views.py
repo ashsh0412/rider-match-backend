@@ -155,7 +155,7 @@ class GoogleLogin(APIView):
                     "grant_type": "authorization_code",
                     "client_id": settings.GOOGLE_CLIENT_ID,
                     "client_secret": settings.GOOGLE_CLIENT_SECRET,
-                    "redirect_uri": settings.GOOGLE_REDIRECT_URL,
+                    "redirect_uri": settings.GOOGLE_REDIRECT_URI,
                     "code": code,
                 },
             )

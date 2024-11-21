@@ -41,6 +41,7 @@ if DEBUG:
     ALLOWED_HOSTS = [
         "127.0.0.1",
         "localhost",
+        "backend.drivermatch.store",
     ]
 else:
     ALLOWED_HOSTS = ["backend.drivermatch.store"]

@@ -169,7 +169,6 @@ class GoogleLogin(APIView):
                 headers={"Authorization": f"Bearer {access_token}"},
             )
             user_data = user_data_response.json()
-            print(user_data)
 
             # 이메일과 이름을 사용하여 유저 검색 (로그인)
             try:

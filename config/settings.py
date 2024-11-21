@@ -37,14 +37,11 @@ GOOGLE_CLIENT_SECRET = env("GOOGLE_CLIENT_SECRET")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = "RENDER" not in os.environ
 
-if DEBUG:
-    ALLOWED_HOSTS = [
-        "127.0.0.1",
-        "localhost",
-        "backend.drivermatch.store",
-    ]
-else:
-    ALLOWED_HOSTS = ["backend.drivermatch.store"]
+ALLOWED_HOSTS = [
+    "backend.drivermatch.store",
+    "127.0.0.1",
+    "localhost",
+]
 
 RENDER_EXTERNAL_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
 

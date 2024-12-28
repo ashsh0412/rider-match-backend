@@ -27,5 +27,6 @@ class BookingSerializer(serializers.ModelSerializer):
             "created_at",
             "starting_point",
             "arrival_time",
+            "map_url",
         )
         read_only_fields = ("id", "rider", "created_at")

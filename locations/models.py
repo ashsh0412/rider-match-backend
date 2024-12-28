@@ -14,12 +14,12 @@ class Location(models.Model):
     end_latitude = models.FloatField()
     end_longitude = models.FloatField()
     pickup_location = models.CharField(
-        max_length=300,
+        max_length=1000,
         null=True,
         blank=True,
     )
     dropoff_location = models.CharField(
-        max_length=300,
+        max_length=1000,
         null=True,
         blank=True,
     )

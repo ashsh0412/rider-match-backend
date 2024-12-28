@@ -18,7 +18,7 @@ class Booking(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     arrival_time = models.DateTimeField(default=timezone.now)
     starting_point = models.CharField(max_length=1000, null=True, blank=True)
-    map_url = models.URLField(null=True, blank=True)
+    map_url = models.URLField(null=True, blank=True, max_length=2000)
 
     def __str__(self):
         return f"{self.rider} / {self.passengers}"

@@ -33,7 +33,9 @@ class MyBooking(APIView):
         ).exclude(passengers__isnull=True)
 
         # 두 쿼리셋 병합 및 중복 제거
-        all_bookings = (bookings | passenger_bookings).distinct()
+        all_bookings = (
+            (bookings | passenger_bookings).distinct().order_by("departure_time")
+        )
 
         if not all_bookings.exists():
             raise NotFound("No bookings found for this user")
@@ -47,6 +49,7 @@ class MyBooking(APIView):
         - passengers: 탑승자 목록 (JSON 형식)
         - pickup_times: 픽업 시간 목록 (JSON 형식)
         - locations: 위치 정보 목록 (JSON 형식)
+        - departure_time: 출발 시간
         """
         serializer = BookingSerializer(data=request.data)
 
@@ -54,12 +57,18 @@ class MyBooking(APIView):
             # 현재 사용자를 운전자로 설정하여 예약 생성
             booking = serializer.save(rider=request.user)
 
+            # 필수 데이터 확인
+            if "departure_time" not in request.data:
+                return Response(
+                    {"error": "Departure time is required"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
             # 탑승자 데이터 처리
             passengers = request.data.get("passengers")
             if passengers:
                 if isinstance(passengers, str):
                     try:
-                        # 문자열로 전달된 JSON 데이터 파싱
                         passengers = json.loads(passengers)
                     except json.JSONDecodeError:
                         return Response(
@@ -104,6 +113,7 @@ class MyBooking(APIView):
         기존 예약 수정
         - 운전자나 탑승자만 수정 가능
         - 부분 업데이트 지원 (일부 필드만 수정 가능)
+        - departure_time 수정 가능
         """
         try:
             booking = Booking.objects.get(id=booking_id)
@@ -123,44 +133,19 @@ class MyBooking(APIView):
         if serializer.is_valid():
             booking = serializer.save()
 
-            # 탑승자 데이터 업데이트
-            passengers = request.data.get("passengers")
-            if passengers:
-                if isinstance(passengers, str):
-                    try:
-                        passengers = json.loads(passengers)
-                    except json.JSONDecodeError:
-                        return Response(
-                            {"error": "Invalid passengers data format"},
-                            status=status.HTTP_400_BAD_REQUEST,
-                        )
-                booking.passengers = passengers
-
-            # 픽업 시간 데이터 업데이트
-            pickup_times = request.data.get("pickup_times")
-            if pickup_times:
-                if isinstance(pickup_times, str):
-                    try:
-                        pickup_times = json.loads(pickup_times)
-                    except json.JSONDecodeError:
-                        return Response(
-                            {"error": "Invalid pickup_times data format"},
-                            status=status.HTTP_400_BAD_REQUEST,
-                        )
-                booking.pickup_times = pickup_times
-
-            # 위치 데이터 업데이트
-            locations = request.data.get("locations")
-            if locations:
-                if isinstance(locations, str):
-                    try:
-                        locations = json.loads(locations)
-                    except json.JSONDecodeError:
-                        return Response(
-                            {"error": "Invalid locations data format"},
-                            status=status.HTTP_400_BAD_REQUEST,
-                        )
-                booking.locations = locations
+            # 각 필드 업데이트
+            for field in ["passengers", "pickup_times", "locations"]:
+                data = request.data.get(field)
+                if data:
+                    if isinstance(data, str):
+                        try:
+                            data = json.loads(data)
+                        except json.JSONDecodeError:
+                            return Response(
+                                {"error": f"Invalid {field} data format"},
+                                status=status.HTTP_400_BAD_REQUEST,
+                            )
+                    setattr(booking, field, data)
 
             booking.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -198,64 +183,37 @@ class UpdateBooking(APIView):
     def put(self, request, booking_id):
         """
         예약 수정 - booking_id 기반으로 업데이트
+        - departure_time 포함 가능
         """
-
         try:
             booking = Booking.objects.get(id=booking_id)
         except Booking.DoesNotExist:
             raise NotFound("Booking not found")
 
-        # 권한 확인: 운전자이거나 탑승자여야 함
         if (
             booking.rider != request.user
             and str(request.user.id) not in booking.passengers
         ):
             raise PermissionDenied("You do not have permission to update this booking")
 
-        # 예약 데이터 업데이트
         serializer = BookingSerializer(booking, data=request.data, partial=True)
 
         if serializer.is_valid():
             booking = serializer.save()
 
-            # 탑승자 정보 업데이트
-            passengers = request.data.get("passengers")
-            if passengers:
-                if isinstance(passengers, str):
-                    try:
-                        passengers = json.loads(passengers)
-                    except json.JSONDecodeError:
-                        return Response(
-                            {"error": "Invalid passengers data format"},
-                            status=status.HTTP_400_BAD_REQUEST,
-                        )
-                booking.passengers = passengers
-
-            # 픽업 시간 정보 업데이트
-            pickup_times = request.data.get("pickup_times")
-            if pickup_times:
-                if isinstance(pickup_times, str):
-                    try:
-                        pickup_times = json.loads(pickup_times)
-                    except json.JSONDecodeError:
-                        return Response(
-                            {"error": "Invalid pickup_times data format"},
-                            status=status.HTTP_400_BAD_REQUEST,
-                        )
-                booking.pickup_times = pickup_times
-
-            # 위치 정보 업데이트
-            locations = request.data.get("locations")
-            if locations:
-                if isinstance(locations, str):
-                    try:
-                        locations = json.loads(locations)
-                    except json.JSONDecodeError:
-                        return Response(
-                            {"error": "Invalid locations data format"},
-                            status=status.HTTP_400_BAD_REQUEST,
-                        )
-                booking.locations = locations
+            # JSON 필드 업데이트
+            for field in ["passengers", "pickup_times", "locations"]:
+                data = request.data.get(field)
+                if data:
+                    if isinstance(data, str):
+                        try:
+                            data = json.loads(data)
+                        except json.JSONDecodeError:
+                            return Response(
+                                {"error": f"Invalid {field} data format"},
+                                status=status.HTTP_400_BAD_REQUEST,
+                            )
+                    setattr(booking, field, data)
 
             # 운전자 업데이트 (옵션)
             new_rider_id = request.data.get("rider")

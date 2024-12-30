@@ -17,6 +17,7 @@ class Booking(models.Model):
     guests = models.PositiveSmallIntegerField(default=1)
     created_at = models.DateTimeField(default=timezone.now)
     arrival_time = models.DateTimeField(default=timezone.now)
+    departure_time = models.DateTimeField(default=timezone.now)
     starting_point = models.CharField(max_length=1000, null=True, blank=True)
     map_url = models.URLField(null=True, blank=True, max_length=2000)
 
